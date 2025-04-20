@@ -16,7 +16,7 @@ Using by controller:
         this.controller = controller
         this.element = document.createElement('p')
         this.element.onclick = (event) => {
-          this.controller.clickHandler(event.target)
+          // this.controller.clickHandler(event.target)
         }
       }
     
