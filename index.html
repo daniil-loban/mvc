@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <script type="module">
+    import RowModel from '/src/mvc/Row/RowModel.js'
+    import RowView from '/src/mvc/Row/RowView.js'
+    import RowEditView from '/src/mvc/Row/RowEditView.js'
+    import RowController from '/src/mvc/Row/RowController.js'
+    import TableModel from '/src/mvc/Table/TableModel.js'
+    import TableView from '/src/mvc/Table/TableView.js'
+    import TableController from '/src/mvc/Table/TableController.js'
+    import NewRowView from '/src/mvc/NewRow/NewRowView.js'
+    import NewRowController from '/src/mvc/NewRow/NewRowController.js'
+
+    class Application {
+      constructor() {
+        this.tableModel = new TableModel()
+
+        this.tableController = new TableController(this.tableModel, TableView, RowController);
+        this.tableController.setRowMVC(RowController, RowModel, RowView)
+
+        this.tableController2 = new TableController(this.tableModel, TableView, RowController);
+        this.tableController2.setRowMVC(RowController, RowModel, RowEditView)
+
+        document.body.appendChild(this.tableController.render());
+        document.body.appendChild(this.tableController2.render());
+
+        this.createNewRowContainer()
+
+        this.tableController.addRows(files);
+        this.tableModel.addRowsModels(files.map(file => new RowModel(this.tableModel, file)))
+
+        this.addTables()
+      }
+
+      addTables() {
+        const count = 10
+        for (let i = 0; i < count; i++) this.addTable()
+        this.tableModel.notifySubscribers()
+      }
+
+      addTable() {
+        const tableController = new TableController(this.tableModel, TableView);
+        tableController.setRowMVC(RowController, RowModel, RowEditView)
+        document.body.appendChild(tableController.render());
+      }
+
+      createNewRowContainer() {
+        const newRowContainer = document.querySelector('.new-row')
+        this.newRowModel = new RowModel()
+        this.newRowController = new NewRowController(this.newRowModel, NewRowView, this)
+        document.body.prepend(this.newRowController.render());
+      }
+
+      addNewRow(data) {
+        this.tableModel.addRowModel(new RowModel(this.tableModel, data))
+      }
+    }
+
+    const files = Array.from({ length: 2 }, (_, index) => {
+      const types = ['jpg', 'png', 'gif', 'bmp', 'svg'];
+      const randomType = types[Math.floor(Math.random() * types.length)];
+      const randomSize = (Math.random() * (5 - 0.1) + 0.1).toFixed(2) + 'Kb';
+      const date = new Date(Date.now() - Math.random() * 10000000000);
+      return {
+        name: `image${index + 1}`,
+        type: randomType,
+        date: date.toLocaleTimeString(),
+        size: randomSize,
+      };
+    });
+
+    const application = new Application()
+  </script>
+</body>
+
+</html>
